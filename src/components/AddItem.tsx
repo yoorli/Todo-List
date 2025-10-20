@@ -1,14 +1,26 @@
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createItemApi } from '@/libs/api';
 import type { ItemEntity } from '@/types/todo';
 
 type Props = {
   onCreated?: (item: ItemEntity) => void;
+  isNone: boolean;
 };
 
-export default function AddItem({ onCreated }: Props) {
+export default function AddItem({ onCreated, isNone }: Props) {
   const [term, setTerm] = useState('');
+  const [isTablet, setIsTablet] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsTablet(window.innerWidth >= 744);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  const addBtnImg = isTablet ? isNone ? '/btnAdd.svg' : '/btnAddWhite.svg' : isNone ? '/btnAddS.svg' : '/btnAddSWhite.svg';
+  const btnSize = isTablet ? 'max-w-[168px] w-full' : 'w-14';
 
   const handleAddItem = async () => {
     if (!term.trim()) return;
@@ -22,13 +34,12 @@ export default function AddItem({ onCreated }: Props) {
   };
 
   return (
-    <div className="mt-6 flex justify-center items-center gap-4 w-full">
-      <div className="relative">
-        <Image src="/search.svg" alt="add" width={1016} height={56} priority />
+    <div className="mt-6 w-full min-w-[344px] flex items-center gap-2">
+      <div className="relative flex-1 h-[56px]">
         <input
           type="text"
           placeholder="할 일을 입력해주세요"
-          className="absolute top-0 left-0 h-14 w-full bg-transparent px-6 text-[16px] placeholder:text-slate-400 focus:outline-none"
+          className="w-full h-full rounded-full bg-slate-100 border-2 border-slate-900 border-b-6 px-4 text-[15px] placeholder:text-slate-500 focus:outline-none"
           value={term}
           onChange={(e) => setTerm(e.target.value)}
           onKeyDown={(e) => {
@@ -38,15 +49,16 @@ export default function AddItem({ onCreated }: Props) {
       </div>
 
       <button
-        className="relative h-14 max-w-[168px] flex items-center justify-center cursor-pointer"
+        className={`relative flex-shrink-0 h-14 ${btnSize}`}
         onClick={handleAddItem}
+        aria-label="추가"
       >
         <Image
-          src="/btnAddWhite.svg"
+          src={addBtnImg}
           alt="add"
-          width={168}
-          height={56}
+          fill
           priority
+          style={{ objectFit: 'contain' }}
         />
       </button>
     </div>

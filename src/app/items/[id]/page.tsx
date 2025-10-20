@@ -7,6 +7,7 @@ import AutoTextarea from '@/components/AutoTextarea';
 import CheckListDetail from '@/components/CheckListDetail';
 import ImageBox from '@/components/ImageBox';
 import type { ItemEntity } from '@/types/todo';
+import Image from 'next/image';
 
 type ItemDetail = {
   id: string;
@@ -14,12 +15,6 @@ type ItemDetail = {
   isCompleted: boolean;
   memo?: string;
   imageUrl?: string;
-};
-
-type Props = {
-  previewUrl?: string;
-  onPick?: (file: File, previewUrl: string) => void;
-  onClear?: () => void;
 };
 
 export default function Page() {
@@ -49,21 +44,15 @@ export default function Page() {
     })();
   }, [id]);
 
-  useEffect(() => {
-    console.log('isCompleted changed:', isCompleted);
-  }, [isCompleted]);
-
   const isDirty = useMemo(() => {
     if (!serverItem) return false;
     return (
       serverItem.name !== itemTitle ||
       serverItem.isCompleted !== isCompleted ||
       (serverItem.memo ?? '') !== memoText ||
-      !!selectedFile 
+      !!selectedFile
     );
   }, [serverItem, itemTitle, isCompleted, memoText, selectedFile]);
-
-  const editBtnSrc = isDirty ? '/btnEdit.svg' : '/btnEditWhite.svg';
 
   const uploadToServer = async (file: File) => {
     const fd = new FormData();
@@ -126,9 +115,11 @@ export default function Page() {
     }
   };
 
+  const editBtnSrc = isDirty ? ' bg-lime-300' : ' bg-slate-200';
+
   return (
-    <main className="w-full flex justify-center overflow-hidden">
-      <div className="max-w-[1200px] w-full h-[calc(100dvh-60px)] bg-white flex flex-col items-center gap-6 pt-6">
+    <main className="mx-auto w-full h-full min-w-[343px] flex justify-center">
+      <div className="w-full h-[100dvh] bg-white flex flex-col items-center gap-4 pt-4 pb-8 px-4 lg:w-[1200px] lg:px-[102px]">
         <CheckListDetail
           itemTitle={itemTitle}
           isCompleted={isCompleted}
@@ -136,7 +127,7 @@ export default function Page() {
           onTitleChange={setItemTitle}
         />
 
-        <div className="flex items-center justify-between gap-6 w-full max-w-[996px]">
+        <div className="flex flex-col gap-[15px] w-full lg:flex-row ">
           <ImageBox
             previewUrl={imagePreviewUrl}
             onPick={(file, preview) => {
@@ -149,15 +140,15 @@ export default function Page() {
             }}
           />
 
-          <div className="relative w-full max-w-[588px] h-[311px] py-3 rounded-2xl bg-[url('/memo.svg')] flex flex-col items-center justify-center">
-            <p className="absolute top-[18px] text-amber-800 font-extrabold">
+          <div className="relative w-full h-[311px] py-3 rounded-2xl bg-[url('/memo.svg')] bg-size[100%_100%] bg-center flex flex-col items-center">
+            <div className="absolute top-6 text-amber-800 font-extrabold h-[18px] text-center">
               Memo
-            </p>
-            <div className="w-full h-full mt-[58px] px-6 grid place-items-center overflow-hidden">
+            </div>
+            <div className="w-full h-full mt-[58px] px-4 grid place-items-center overflow-hidden">
               <AutoTextarea
                 placeholder={'메모를 작성해 보세요!\n사진도 첨부할 수 있어요!'}
                 rows={3}
-                className="max-h-full w-full"
+                className="max-h-full text-slate-800"
                 value={memoText}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   setMemoText(e.target.value)
@@ -167,20 +158,41 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="flex gap-4 justify-end w-full max-w-[996px]">
+        <div className="mt-2 flex justify-center gap-[7px] w-[344px] h-[56px] lg:w-full lg:justify-end">
           <button
-  type="button"
-  aria-label="수정 완료"
-  onClick={handleEdit}
-  disabled={!isDirty}
-  aria-disabled={!isDirty}
-  className="w-[168px] h-[56px] cursor-pointer disabled:opacity-50"
-  style={{ backgroundImage: `url(${editBtnSrc})`, backgroundSize: 'cover' }}
-/>
+            type="button"
+            aria-label="수정 완료" 
+            onClick={handleEdit}
+            disabled={!isDirty}
+            aria-disabled={!isDirty}
+            className={`w-[168px] h-[full] cursor-pointer border-2 border-slate-900 border-b-[6px] rounded-full 
+                    text-slate-900 font-bold flex items-center justify-center
+                    disabled:cursor-not-allowed ${editBtnSrc}`}
+          >
+            <Image
+              src="/ic_check.svg"
+              alt="edit"
+              width={24}
+              height={24}
+              className="inline-block mr-2"
+            />
+            <>수정 완료</>
+          </button>
           <button
-            className="w-[168px] h-[56px] bg-[url('/btnDelete.svg')] cursor-pointer"
+            className="w-[168px] h-full cursor-pointer border-2 border-slate-900 border-b-[6px] bg-rose-500 rounded-full
+                    text-white font-bold flex items-center justify-center"
             onClick={handleDelete}
-          />
+            aria-label="삭제"
+          >
+            <Image
+              src="/ic_X.svg"
+              alt="edit"
+              width={24}
+              height={24}
+              className="inline-block mr-2"
+            />
+            <>삭제하기</>
+          </button>
         </div>
       </div>
     </main>

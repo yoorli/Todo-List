@@ -38,51 +38,56 @@ export default function CheckList({ field, list, onMutate }: Props) {
   };
 
   return (
-    <div className="mt-10 max-w-[588px] flex flex-col gap-4 w-full">
-      <Image
-        src={`/${field}.svg`}
-        alt={`${field}`}
-        width={101}
-        height={36}
-        priority
-      />
-      <div className="flex flex-col gap-4 w-full">
+    <section className="w-full">
+      <div className="relative h-[36px] w-[101px]">
+        <Image
+          src={`/${field}.svg`}
+          alt={`${field}`}
+          fill
+          priority
+          style={{ objectFit: 'contain' }}
+        />
+      </div>
+
+      <div className="mt-4 w-full">
         {list.length !== 0 ? (
-          <ul className="space-y-3">
+          <ul className="space-y-2">
             {list.map((i) => (
               <li
                 key={i.id}
-                className={`px-3 max-w-[588px] h-[50px] rounded-full border-2 border-slate-900 flex items-center gap-4 ${checkBoxStyle}`}
+                className={`flex h-11 w-full max-w-full items-center gap-4 rounded-full border-2 border-slate-900 px-3 ${checkBoxStyle}`}
               >
                 <Image
                   src={checkboxSrc}
                   alt="checkBox"
-                  width={32}
-                  height={32}
+                  width={28} 
+                  height={28}
                   priority
                   className={`cursor-pointer ${
                     pending.has(String(i.id))
-                      ? 'opacity-50 pointer-events-none'
+                      ? 'pointer-events-none opacity-50'
                       : ''
                   }`}
                   onClick={() => handleCompleted(String(i.id), i.isCompleted)}
                 />
-                <Link href={`/items/${i.id}`} className="truncate">
+                <Link href={`/items/${i.id}`} className="min-w-0 flex-1 truncate">
                   {i.name}
                 </Link>
               </li>
             ))}
           </ul>
         ) : (
-          <div className="flex flex-col items-center justify-center gap-6">
-            <Image
-              src={field === 'todo' ? '/emptyTodoL.svg' : '/emptyDoneL.svg'}
-              alt="emptyTodoL"
-              width={240}
-              height={240}
-              priority
-            />
-            <div className="font-bold text-slate-400 text-center whitespace-pre-wrap">
+          <div className="mt-4 flex flex-col items-center justify-center gap-4">
+            <div className="relative h-[120px] w-[120px] md:h-[240px] md:w-[240px]">
+              <Image
+                src={field === 'todo' ? '/emptyTodoL.svg' : '/emptyDoneL.svg'}
+                alt="empty"
+                fill
+                priority
+                style={{ objectFit: 'contain' }}
+              />
+            </div>
+            <div className="whitespace-pre-wrap text-center font-bold text-slate-400">
               {field === 'todo'
                 ? '할 일이 없어요.\nTODO를 새롭게 추가해주세요!'
                 : '아직 다 한 일이 없어요.\n해야 할 일을 체크해보세요!'}
@@ -90,6 +95,6 @@ export default function CheckList({ field, list, onMutate }: Props) {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from 'react';
 type Props = {
   previewUrl?: string;
   onPick?: (file: File, previewUrl: string) => void;
-  onClear?: () => void; // ← 추가
+  onClear?: () => void;
 };
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -17,8 +17,15 @@ export default function ImageBox({ previewUrl = '', onPick, onClear }: Props) {
   const [localPreview, setLocalPreview] = useState<string>(previewUrl);
   const [err, setErr] = useState<string>('');
 
-  useEffect(() => { setLocalPreview(previewUrl); }, [previewUrl]);
-  useEffect(() => () => { if (localPreview?.startsWith('blob:')) URL.revokeObjectURL(localPreview); }, [localPreview]);
+  useEffect(() => {
+    setLocalPreview(previewUrl);
+  }, [previewUrl]);
+  useEffect(
+    () => () => {
+      if (localPreview?.startsWith('blob:')) URL.revokeObjectURL(localPreview);
+    },
+    [localPreview]
+  );
 
   const openPicker = () => inputRef.current?.click();
 
@@ -27,8 +34,16 @@ export default function ImageBox({ previewUrl = '', onPick, onClear }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!NAME_RE.test(file.name)) { setErr('영문 파일명 + jpg/jpeg/png/webp'); e.target.value=''; return; }
-    if (file.size > MAX_BYTES)   { setErr('5MB 이하여야 합니다.'); e.target.value=''; return; }
+    if (!NAME_RE.test(file.name)) {
+      setErr('영문 파일명 + jpg/jpeg/png/webp');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      setErr('5MB 이하여야 합니다.');
+      e.target.value = '';
+      return;
+    }
 
     if (localPreview?.startsWith('blob:')) URL.revokeObjectURL(localPreview);
     const blobUrl = URL.createObjectURL(file);
@@ -39,11 +54,22 @@ export default function ImageBox({ previewUrl = '', onPick, onClear }: Props) {
   const buttonIcon = localPreview ? '/btnImgEdit.svg' : '/btnImgAdd.svg';
 
   return (
-    <div className="relative w-full h-[311px] max-w-[384px] border-2 border-slate-300 border-dashed rounded-2xl bg-slate-50 bg-[url('/img.svg')] bg-center bg-no-repeat overflow-hidden">
-      {localPreview && <Image src={localPreview} alt="preview" fill className="object-cover" sizes="384px" />}
+    <div className="relative w-full h-[311px] border-2 border-slate-300 border-dashed rounded-2xl
+                   bg-slate-50 bg-[url('/img.svg')] bg-center bg-no-repeat overflow-hidden
+                    lg:max-w-[384px]">
+      {localPreview && (
+        <Image
+          src={localPreview}
+          alt="preview"
+          fill
+          className="object-cover"
+        />
+      )}
 
       {err && (
-        <p className="absolute left-3 bottom-3 text-sm text-rose-500 bg-white/80 px-2 py-1 rounded">{err}</p>
+        <p className="absolute left-4 bottom-4 text-xs text-rose-500 bg-white/80 px-2 py-1 rounded">
+          {err}
+        </p>
       )}
 
       <button
@@ -56,7 +82,13 @@ export default function ImageBox({ previewUrl = '', onPick, onClear }: Props) {
         <Image src={buttonIcon} alt="pick" width={64} height={64} priority />
       </button>
 
-      <input ref={inputRef} type="file" accept={ACCEPT} onChange={handleChange} className="hidden" />
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPT}
+        onChange={handleChange}
+        className="hidden"
+      />
     </div>
   );
 }

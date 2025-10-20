@@ -20,7 +20,9 @@ export default function CheckListDetail({
   const inputRef = useRef<HTMLInputElement>(null);
   const mirrorRef = useRef<HTMLSpanElement>(null);
 
-  useEffect(() => { setIsDone(isCompleted); }, [isCompleted]);
+  useEffect(() => {
+    setIsDone(isCompleted);
+  }, [isCompleted]);
 
   const handleCompleted = () => {
     const next = !isDone;
@@ -33,7 +35,7 @@ export default function CheckListDetail({
     const input = inputRef.current;
     if (!span || !input) return;
     span.textContent = text || input.placeholder || '';
-    const pad = 6; 
+    const pad = 6;
     input.style.width = `${Math.ceil(span.offsetWidth) + pad}px`;
   };
 
@@ -42,10 +44,14 @@ export default function CheckListDetail({
   }, [itemTitle]);
 
   const checkboxSrc = isDone ? '/checkboxChecked.svg' : '/checkboxDefault.svg';
-  const rowBg = isDone ? 'bg-violet-100' : 'bg-white';
+  const rowBg = isDone
+    ? 'bg-violet-200 border-violet-600'
+    : 'bg-white border-slate-900';
 
   return (
-    <div className={`w-full max-w-[996px] h-16 border-2 border-slate-900 rounded-3xl flex items-center justify-center gap-4 ${rowBg}`}>
+    <div
+      className={`w-full h-14 border-2 rounded-2xl flex items-center justify-center gap-4 px-2 ${rowBg}`}
+    >
       <Image
         src={checkboxSrc}
         alt="completed"
@@ -55,14 +61,11 @@ export default function CheckListDetail({
         className="cursor-pointer"
         onClick={handleCompleted}
       />
-
       <span
         ref={mirrorRef}
         aria-hidden
-        className="invisible absolute whitespace-pre font-bold text-xl underline"
-        style={{ fontFamily: 'NanumSquare, sans-serif' }}
+        className="invisible absolute whitespace-pre font-bold text-lg underline"
       />
-
       <input
         ref={inputRef}
         value={itemTitle}
@@ -73,7 +76,7 @@ export default function CheckListDetail({
         onKeyDown={(e) => {
           if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
         }}
-        className="w-auto text-center font-bold text-xl text-slate-900 underline bg-transparent outline-none"
+        className="w-auto text-center font-bold text-lg text-slate-900 underline bg-transparent outline-none"
         placeholder="제목을 입력하세요"
         maxLength={100}
         aria-label="할 일 제목"
