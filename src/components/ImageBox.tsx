@@ -1,19 +1,62 @@
+'use client';
 import Image from 'next/image';
+import { useRef, useState, useEffect } from 'react';
 
-export default function ImageBox() {
+type Props = {
+  previewUrl?: string;
+  onPick?: (file: File, previewUrl: string) => void;
+  onClear?: () => void; // ← 추가
+};
+
+const MAX_BYTES = 5 * 1024 * 1024;
+const NAME_RE = /^[A-Za-z]+\.(jpg|jpeg|png|webp)$/i;
+const ACCEPT = 'image/jpeg,image/png,image/webp';
+
+export default function ImageBox({ previewUrl = '', onPick, onClear }: Props) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [localPreview, setLocalPreview] = useState<string>(previewUrl);
+  const [err, setErr] = useState<string>('');
+
+  useEffect(() => { setLocalPreview(previewUrl); }, [previewUrl]);
+  useEffect(() => () => { if (localPreview?.startsWith('blob:')) URL.revokeObjectURL(localPreview); }, [localPreview]);
+
+  const openPicker = () => inputRef.current?.click();
+
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setErr('');
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!NAME_RE.test(file.name)) { setErr('영문 파일명 + jpg/jpeg/png/webp'); e.target.value=''; return; }
+    if (file.size > MAX_BYTES)   { setErr('5MB 이하여야 합니다.'); e.target.value=''; return; }
+
+    if (localPreview?.startsWith('blob:')) URL.revokeObjectURL(localPreview);
+    const blobUrl = URL.createObjectURL(file);
+    setLocalPreview(blobUrl);
+    onPick?.(file, blobUrl);
+  };
+
+  const buttonIcon = localPreview ? '/btnImgEdit.svg' : '/btnImgAdd.svg';
 
   return (
-    <div className='relative w-full h-[311px] max-w-[384px] border-2 border-slate-300 border-dashed rounded-2xl bg-slate-50 bg-[url("/img.svg")] bg-center bg-no-repeat'>
-      <button className="absolute bottom-4 right-4 cursor-pointer">
-        <Image
-          src="/btnImgAdd.svg"
-          alt="camera"
-          width={64}
-          height={64}
-          priority
-        />
+    <div className="relative w-full h-[311px] max-w-[384px] border-2 border-slate-300 border-dashed rounded-2xl bg-slate-50 bg-[url('/img.svg')] bg-center bg-no-repeat overflow-hidden">
+      {localPreview && <Image src={localPreview} alt="preview" fill className="object-cover" sizes="384px" />}
+
+      {err && (
+        <p className="absolute left-3 bottom-3 text-sm text-rose-500 bg-white/80 px-2 py-1 rounded">{err}</p>
+      )}
+
+      <button
+        type="button"
+        className="absolute bottom-4 right-4 cursor-pointer"
+        onClick={openPicker}
+        aria-label={localPreview ? '이미지 변경' : '이미지 추가'}
+        title={localPreview ? '이미지 변경' : '이미지 추가'}
+      >
+        <Image src={buttonIcon} alt="pick" width={64} height={64} priority />
       </button>
+
+      <input ref={inputRef} type="file" accept={ACCEPT} onChange={handleChange} className="hidden" />
     </div>
   );
 }
-  
