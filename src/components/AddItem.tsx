@@ -1,14 +1,24 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import { createItemApi } from '@/libs/api';
+import type { ItemEntity } from '@/types/todo';
 
-export default function AddItem() {
+type Props = {
+  onCreated?: (item: ItemEntity) => void;
+};
+
+export default function AddItem({ onCreated }: Props) {
   const [term, setTerm] = useState('');
 
-  const handleAddItem = () => {
-    console.log('Add item:', term);
-    createItemApi({ name: term });
-    setTerm('');
+  const handleAddItem = async () => {
+    if (!term.trim()) return;
+    try {
+      const created = await createItemApi({ name: term.trim() });
+      onCreated?.(created);
+      setTerm('');
+    } catch (e) {
+      console.error('create failed', e);
+    }
   };
 
   return (
@@ -22,9 +32,7 @@ export default function AddItem() {
           value={term}
           onChange={(e) => setTerm(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleAddItem();
-            }
+            if (e.key === 'Enter') handleAddItem();
           }}
         />
       </div>
