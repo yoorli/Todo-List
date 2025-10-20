@@ -24,18 +24,47 @@
 @font-face {
   font-family: 'NanumSquare';
   font-weight: 400;
-  src: url('/fonts/NanumSquareR.ttf') format('ttf');
-}
-@font-face {
-  font-family: 'NanumSquare';
-  font-weight: 700;
-  src: url('/fonts/NanumSquareB.ttf') format('ttf');
+  font-display: swap;
+  src: url('/fonts/NanumSquareR.woff') format('woff'),
+    url('/fonts/NanumSquareR.woff2') format('woff2'),
+    url('/fonts/NanumSquareR.ttf') format('truetype');
 }
 
 body {
   font-family: 'NanumSquare', sans-serif;
-  background-color: var(--bg-50);
+  background-color: var(--gray-50);
   color: var(--slate-800);
+}
+
+@layer utilities {
+  .scrollbar {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-amber-200) transparent;
+  }
+  .scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+    background-clip: padding-box;
+  }
+  .scrollbar:hover::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+  }
+  .scrollbar::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    -webkit-appearance: none !important;
+    border: 0 !important;
+  }
 }
 
 /* @theme inline {
