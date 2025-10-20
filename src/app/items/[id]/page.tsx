@@ -8,7 +8,6 @@ import CheckListDetail from '@/components/CheckListDetail';
 import ImageBox from '@/components/ImageBox';
 import type { ItemEntity } from '@/types/todo';
 
-/** 서버 응답 타입 가정: 필요 필드만 사용 */
 type ItemDetail = {
   id: string;
   name: string;
@@ -26,10 +25,8 @@ type Props = {
 export default function Page() {
   const { id } = useParams<{ id?: string }>();
 
-  /** 서버 원본 상태 */
   const [serverItem, setServerItem] = useState<ItemDetail | null>(null);
 
-  /** 로컬 편집 상태(버튼 누를 때까지 서버 미반영) */
   const [isCompleted, setIsCompleted] = useState(false);
   const [itemTitle, setItemTitle] = useState('');
   const [memoText, setMemoText] = useState('');
@@ -52,25 +49,22 @@ export default function Page() {
     })();
   }, [id]);
 
-  /** 디버그 */
   useEffect(() => {
     console.log('isCompleted changed:', isCompleted);
   }, [isCompleted]);
 
-  /** 변경 여부 추적 */
   const isDirty = useMemo(() => {
     if (!serverItem) return false;
     return (
       serverItem.name !== itemTitle ||
       serverItem.isCompleted !== isCompleted ||
       (serverItem.memo ?? '') !== memoText ||
-      !!selectedFile // 파일 선택만으로도 변경
+      !!selectedFile 
     );
   }, [serverItem, itemTitle, isCompleted, memoText, selectedFile]);
 
   const editBtnSrc = isDirty ? '/btnEdit.svg' : '/btnEditWhite.svg';
 
-  /** **이미지 업로드는 여기서만 수행** */
   const uploadToServer = async (file: File) => {
     const fd = new FormData();
     fd.append('file', file);
@@ -84,7 +78,6 @@ export default function Page() {
     Pick<ItemEntity, 'name' | 'isCompleted' | 'imageUrl' | 'memo'>
   >;
 
-  /** **수정 완료 버튼: 이미지→업로드 후 updateItem 호출** */
   const handleEdit = async () => {
     if (!id) return;
     try {
@@ -136,16 +129,14 @@ export default function Page() {
   return (
     <main className="w-full flex justify-center overflow-hidden">
       <div className="max-w-[1200px] w-full h-[calc(100dvh-60px)] bg-white flex flex-col items-center gap-6 pt-6">
-        {/* 체크리스트 타이틀 + 완료 토글 */}
         <CheckListDetail
           itemTitle={itemTitle}
           isCompleted={isCompleted}
           onToggle={setIsCompleted}
-          /** **제목 편집을 허용하려면 별도 인풋을 추가하세요** */
+          onTitleChange={setItemTitle}
         />
 
         <div className="flex items-center justify-between gap-6 w-full max-w-[996px]">
-          {/* **변경점: ImageBox는 파일만 고르고 미리보기만 표시. 업로드는 handleEdit에서** */}
           <ImageBox
             previewUrl={imagePreviewUrl}
             onPick={(file, preview) => {
@@ -163,7 +154,6 @@ export default function Page() {
               Memo
             </p>
             <div className="w-full h-full mt-[58px] px-6 grid place-items-center overflow-hidden">
-              {/* **변경점: AutoTextarea를 제어 컴포넌트로 사용** */}
               <AutoTextarea
                 placeholder={'메모를 작성해 보세요!\n사진도 첨부할 수 있어요!'}
                 rows={3}
@@ -178,7 +168,6 @@ export default function Page() {
         </div>
 
         <div className="flex gap-4 justify-end w-full max-w-[996px]">
-          {/* **수정 완료 버튼만 서버 반영** */}
           <button
   type="button"
   aria-label="수정 완료"
