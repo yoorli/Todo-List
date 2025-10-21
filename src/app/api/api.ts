@@ -8,7 +8,7 @@ const base = `/api/${TENANT_ID}/items`;
 
 // 목록 조회
 
-export async function listItems():  Promise<ItemEntity[]> {
+export async function listItems(): Promise<ItemEntity[]> {
   const { data } = await axios.get<ItemEntity[]>(`${base}`);
   return data;
 }
@@ -24,7 +24,7 @@ export async function createItemApi(payload: {
   name: string;
 }): Promise<ItemEntity> {
   const { data } = await axios.post<ItemEntity>(base, payload);
-  console.log(data)
+  console.log(data);
   return data;
 }
 

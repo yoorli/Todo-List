@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { ItemEntity, Status } from '@/types/todo';
-import { updateItem } from '@/libs/api';
+import { updateItem } from '@/app/api/api';
 
 type Props = {
   field: Status;
@@ -60,7 +60,7 @@ export default function CheckList({ field, list, onMutate }: Props) {
                 <Image
                   src={checkboxSrc}
                   alt="checkBox"
-                  width={28} 
+                  width={28}
                   height={28}
                   priority
                   className={`cursor-pointer ${
@@ -70,7 +70,10 @@ export default function CheckList({ field, list, onMutate }: Props) {
                   }`}
                   onClick={() => handleCompleted(String(i.id), i.isCompleted)}
                 />
-                <Link href={`/items/${i.id}`} className="min-w-0 flex-1 truncate">
+                <Link
+                  href={`/items/${i.id}`}
+                  className="min-w-0 flex-1 truncate"
+                >
                   {i.name}
                 </Link>
               </li>

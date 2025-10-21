@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 
-import { deleteItem, getItem, updateItem } from '@/libs/api';
+import { deleteItem, getItem, updateItem } from '@/app/api/api';
 import AutoTextarea from '@/components/AutoTextarea';
 import CheckListDetail from '@/components/CheckListDetail';
 import ImageBox from '@/components/ImageBox';
@@ -105,6 +105,13 @@ export default function Page() {
     }
   };
 
+  // 이미지 제거 추후 추가 예정
+  // const deleteFromServer = async (url: string) => {
+  //   await fetch(`/api/upload?url=${encodeURIComponent(url)}`, {
+  //     method: 'DELETE',
+  //   });
+  // };
+
   const handleDelete = async () => {
     try {
       if (!id) return;
@@ -161,7 +168,7 @@ export default function Page() {
         <div className="mt-2 flex justify-center gap-[7px] w-[344px] h-[56px] lg:w-full lg:justify-end">
           <button
             type="button"
-            aria-label="수정 완료" 
+            aria-label="수정 완료"
             onClick={handleEdit}
             disabled={!isDirty}
             aria-disabled={!isDirty}

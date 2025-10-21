@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { createItemApi } from '@/libs/api';
+import { createItemApi } from '@/app/api/api';
 import type { ItemEntity } from '@/types/todo';
 
 type Props = {
@@ -19,7 +19,13 @@ export default function AddItem({ onCreated, isNone }: Props) {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const addBtnImg = isTablet ? isNone ? '/btnAdd.svg' : '/btnAddWhite.svg' : isNone ? '/btnAddS.svg' : '/btnAddSWhite.svg';
+  const addBtnImg = isTablet
+    ? isNone
+      ? '/btnAdd.svg'
+      : '/btnAddWhite.svg'
+    : isNone
+    ? '/btnAddS.svg'
+    : '/btnAddSWhite.svg';
   const btnSize = isTablet ? 'max-w-[168px] w-full' : 'w-14';
 
   const handleAddItem = async () => {
