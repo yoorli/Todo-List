@@ -1,4 +1,10 @@
 'use client';
+/**
+ * 상단 헤더
+ * - 로고 위치: 1270px 이상에서 1920 기준 좌측 360px 오프셋로 고정
+ *   left: calc((100vw - 1920px)/2 + 360px)
+ * - 모바일/태블릿 로고 소스 분기
+ */
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 

@@ -1,4 +1,10 @@
 'use client';
+/**
+ * 상세 상단 카드
+ * - 완료 체크박스 + 제목 인라인 편집
+ * - 입력 너비를 텍스트 길이에 맞게 자동 조정
+ * - 완료 여부에 따라 배경/테두리 색상 분기
+ */
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
@@ -6,8 +12,8 @@ import { useEffect, useRef, useState } from 'react';
 type Props = {
   itemTitle: string;
   isCompleted: boolean;
-  onToggle?: (next: boolean) => void;
-  onTitleChange?: (title: string) => void;
+  onToggle?: (next: boolean) => void; // 완료 토글 콜백
+  onTitleChange?: (title: string) => void; // 제목 변경 콜백
 };
 
 export default function CheckListDetail({
@@ -20,16 +26,19 @@ export default function CheckListDetail({
   const inputRef = useRef<HTMLInputElement>(null);
   const mirrorRef = useRef<HTMLSpanElement>(null);
 
+  // 외부 완료여부 변경 반영
   useEffect(() => {
     setIsDone(isCompleted);
   }, [isCompleted]);
 
+  // 완료 토글
   const handleCompleted = () => {
     const next = !isDone;
     setIsDone(next);
     onToggle?.(next);
   };
 
+  // 입력 길이에 맞춰 input 너비 조정
   const resizeToContent = (text: string) => {
     const span = mirrorRef.current;
     const input = inputRef.current;

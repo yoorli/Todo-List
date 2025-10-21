@@ -1,3 +1,8 @@
+/**
+ * 신규 아이템 추가 입력창
+ * - 모바일/태블릿에 따라 버튼 이미지와 크기 분기
+ * - Enter 키 또는 버튼 클릭으로 생성
+ */
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { createItemApi } from '@/app/api/api';
@@ -5,13 +10,14 @@ import type { ItemEntity } from '@/types/todo';
 
 type Props = {
   onCreated?: (item: ItemEntity) => void;
-  isNone: boolean;
+  isNone: boolean; // 목록이 비었을 때 버튼 스킨 변경을 위한 플래그
 };
 
 export default function AddItem({ onCreated, isNone }: Props) {
   const [term, setTerm] = useState('');
   const [isTablet, setIsTablet] = useState(false);
 
+  // 뷰포트 변경에 따라 태블릿 여부 판별
   useEffect(() => {
     const check = () => setIsTablet(window.innerWidth >= 744);
     check();
@@ -19,6 +25,7 @@ export default function AddItem({ onCreated, isNone }: Props) {
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  // 버튼 이미지와 크기 분기
   const addBtnImg = isTablet
     ? isNone
       ? '/btnAdd.svg'
@@ -28,6 +35,7 @@ export default function AddItem({ onCreated, isNone }: Props) {
     : '/btnAddSWhite.svg';
   const btnSize = isTablet ? 'max-w-[168px] w-full' : 'w-14';
 
+  // 생성 처리
   const handleAddItem = async () => {
     if (!term.trim()) return;
     try {

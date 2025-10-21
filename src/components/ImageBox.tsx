@@ -1,4 +1,10 @@
 'use client';
+/**
+ * 이미지 업로드 박스
+ * - 파일 선택 → 로컬 미리보기(blob:) → 상위 onPick으로 전달
+ * - 최종 저장된 https URL은 next/image로 최적화 렌더
+ * - 용량/확장자 제한, 간단한 에러 메시지 제공
+ */
 import Image from 'next/image';
 import { useRef, useState, useEffect } from 'react';
 
@@ -17,9 +23,12 @@ export default function ImageBox({ previewUrl = '', onPick, onClear }: Props) {
   const [localPreview, setLocalPreview] = useState<string>(previewUrl);
   const [err, setErr] = useState<string>('');
 
+  // 외부에서 전달된 previewUrl 변경 반영
   useEffect(() => {
     setLocalPreview(previewUrl);
   }, [previewUrl]);
+
+  // blob: URL 정리
   useEffect(
     () => () => {
       if (localPreview?.startsWith('blob:')) URL.revokeObjectURL(localPreview);
@@ -29,6 +38,7 @@ export default function ImageBox({ previewUrl = '', onPick, onClear }: Props) {
 
   const openPicker = () => inputRef.current?.click();
 
+  // 파일 선택 처리
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setErr('');
     const file = e.target.files?.[0];

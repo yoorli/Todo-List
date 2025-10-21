@@ -1,4 +1,11 @@
 'use client';
+/**
+ * 아이템 상세 페이지
+ * - 제목/완료여부/메모/이미지 편집
+ * - 이미지 업로드는 /api/upload 라우트로 프록시되어 Vercel Blob에 저장
+ * - 저장 후 목록으로 리다이렉트
+ */
+
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 
@@ -20,14 +27,15 @@ type ItemDetail = {
 export default function Page() {
   const { id } = useParams<{ id?: string }>();
 
+  // 서버 원본과 로컬 편집 상태
   const [serverItem, setServerItem] = useState<ItemDetail | null>(null);
-
   const [isCompleted, setIsCompleted] = useState(false);
   const [itemTitle, setItemTitle] = useState('');
   const [memoText, setMemoText] = useState('');
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string>(''); // 미리보기 전용(Blob URL 또는 원본)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null); // **저장 시 업로드**
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // 저장 시 업로드
 
+  // 상세 데이터 조회
   useEffect(() => {
     if (!id) return;
     (async () => {
@@ -44,6 +52,7 @@ export default function Page() {
     })();
   }, [id]);
 
+  // 변경 여부 플래그
   const isDirty = useMemo(() => {
     if (!serverItem) return false;
     return (
@@ -54,6 +63,7 @@ export default function Page() {
     );
   }, [serverItem, itemTitle, isCompleted, memoText, selectedFile]);
 
+  // 파일 업로드 → Blob URL 수신
   const uploadToServer = async (file: File) => {
     const fd = new FormData();
     fd.append('file', file);
@@ -63,14 +73,16 @@ export default function Page() {
     return url as string;
   };
 
+  // 서버 패치 타입
   type Patch = Partial<
     Pick<ItemEntity, 'name' | 'isCompleted' | 'imageUrl' | 'memo'>
   >;
 
+  // 저장
   const handleEdit = async () => {
     if (!id) return;
     try {
-      // 1) 이미지 파일이 있으면 업로드
+      // 선택된 파일이 있으면 업로드 후 URL 반영
       let finalImageUrl = serverItem?.imageUrl ?? '';
       if (selectedFile) {
         finalImageUrl = await uploadToServer(selectedFile);
@@ -83,10 +95,9 @@ export default function Page() {
         imageUrl: finalImageUrl,
       };
 
-      // 2) 서버 패치(백엔드 스키마에 맞춰 선택적으로 필드 포함)
       await updateItem(String(id), patch);
 
-      // 3) 서버 원본 동기화 및 더티 플래그 리셋
+      // 로컬 원본 동기화 후 목록으로 이동
       setServerItem((prev) =>
         prev
           ? {
@@ -105,13 +116,7 @@ export default function Page() {
     }
   };
 
-  // 이미지 제거 추후 추가 예정
-  // const deleteFromServer = async (url: string) => {
-  //   await fetch(`/api/upload?url=${encodeURIComponent(url)}`, {
-  //     method: 'DELETE',
-  //   });
-  // };
-
+  // 삭제
   const handleDelete = async () => {
     try {
       if (!id) return;
@@ -165,7 +170,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="mt-2 flex justify-center gap-[7px] w-[344px] h-[56px] lg:w-full lg:justify-end">
+        <div className="mt-2 flex justify-center gap-[7px] w-[344px] h-[56px] lg:w/full lg:justify-end">
           <button
             type="button"
             aria-label="수정 완료"

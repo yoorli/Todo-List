@@ -1,4 +1,8 @@
 'use client';
+/**
+ * 콘텐츠에 맞춰 자동으로 높이를 조정하는 textarea
+ * - 부모 높이(maxH) 이내에서만 확장
+ */
 import { useRef, useEffect } from 'react';
 
 export default function AutoTextarea({
@@ -7,12 +11,11 @@ export default function AutoTextarea({
 }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
+  // scrollHeight 기반 자동 리사이즈
   const resize = () => {
     const el = ref.current;
     if (!el) return;
-
     const maxH = el.parentElement?.clientHeight ?? Infinity;
-
     el.style.height = 'auto';
     const desired = el.scrollHeight;
     el.style.height = `${Math.min(desired, maxH)}px`;

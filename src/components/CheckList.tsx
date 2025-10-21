@@ -1,3 +1,9 @@
+/**
+ * 목록 컬럼 컴포넌트
+ * - field(todo/done)에 따라 체크박스 이미지와 줄긋기 스타일 분기
+ * - 아이템 클릭 시 상세 페이지로 이동
+ * - 체크박스 클릭 시 완료 상태 토글 후 상위 onMutate로 재조회 요청
+ */
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -8,7 +14,7 @@ import { updateItem } from '@/app/api/api';
 type Props = {
   field: Status;
   list: ItemEntity[];
-  onMutate?: () => void;
+  onMutate?: () => void; // 완료 토글 후 목록 재조회 콜백
 };
 
 export default function CheckList({ field, list, onMutate }: Props) {
@@ -18,8 +24,10 @@ export default function CheckList({ field, list, onMutate }: Props) {
   const checkBoxStyle =
     field === 'todo' ? 'bg-white' : 'line-through bg-violet-100';
 
+  // 중복 클릭 방지용 pending 집합
   const [pending, setPending] = useState<Set<string>>(new Set());
 
+  // 완료 토글
   const handleCompleted = async (id: string, isCompleted: boolean) => {
     if (pending.has(id)) return;
     setPending((prev) => new Set(prev).add(id));
