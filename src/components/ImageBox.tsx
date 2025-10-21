@@ -52,19 +52,30 @@ export default function ImageBox({ previewUrl = '', onPick, onClear }: Props) {
   };
 
   const buttonIcon = localPreview ? '/btnImgEdit.svg' : '/btnImgAdd.svg';
+  const isBlob = localPreview?.startsWith('blob:');
 
   return (
-    <div className="relative w-full h-[311px] border-2 border-slate-300 border-dashed rounded-2xl
+    <div
+      className="relative w-full h-[311px] border-2 border-slate-300 border-dashed rounded-2xl
                    bg-slate-50 bg-[url('/img.svg')] bg-center bg-no-repeat overflow-hidden
-                    lg:max-w-[384px]">
-      {localPreview && (
-        <Image
-          src={localPreview}
-          alt="preview"
-          fill
-          className="object-cover"
-        />
-      )}
+                    lg:max-w-[384px]"
+    >
+      {localPreview &&
+        (isBlob ? (
+          <img
+            src={localPreview}
+            alt="preview"
+            className="object-cover w-full h-full"
+          />
+        ) : (
+          <Image
+            src={localPreview}
+            alt="preview"
+            fill
+            className="object-cover"
+            sizes="384px"
+          />
+        ))}
 
       {err && (
         <p className="absolute left-4 bottom-4 text-xs text-rose-500 bg-white/80 px-2 py-1 rounded">

@@ -1,18 +1,20 @@
-// **파일 이동 + 파일명 정정(uploasd → upload/route.ts)**
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { put, del } from '@vercel/blob';
 
-export const runtime = 'nodejs';
+export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const NAME_RE = /^[A-Za-z]+\.(jpg|jpeg|png|webp)$/i;
+const ACCEPT = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 export async function POST(req: Request) {
-  // 선택: multipart 체크(없어도 formData()는 동작)
   const ct = req.headers.get('content-type') || '';
   if (!ct.toLowerCase().includes('multipart/form-data')) {
-    return NextResponse.json({ error: 'unsupported content-type' }, { status: 415 });
+    return NextResponse.json(
+      { error: 'unsupported content-type' },
+      { status: 415 }
+    );
   }
 
   const form = await req.formData();
@@ -26,14 +28,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'too large' }, { status: 400 });
   }
 
-  const bytes = Buffer.from(await file.arrayBuffer());
-  const ext = path.extname(file.name).toLowerCase();
-  const basename = path.basename(file.name, ext);
-  const safeName = `${basename}-${Date.now()}${ext}`;
+  const token = process.env.BLOB_READ_WRITE_TOKEN!;
+  const key = `todo/${Date.now()}-${file.name}`;
+  const { url } = await put(key, file, { access: 'public', token });
 
-  const dir = path.join(process.cwd(), 'public', 'uploads');
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, safeName), bytes);
+  return NextResponse.json({ url }, { status: 200 });
+}
 
-  return NextResponse.json({ url: `/uploads/${safeName}` });
+// 코드 미연결
+export async function DELETE(req: Request) {
+  const url = new URL(req.url).searchParams.get('url');
+  if (!url) return NextResponse.json({ error: 'no url' }, { status: 400 });
+
+  const token = process.env.BLOB_READ_WRITE_TOKEN!;
+  await del(url, { token });
+  return NextResponse.json({ ok: true }, { status: 200 });
 }
